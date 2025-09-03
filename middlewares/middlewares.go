@@ -206,9 +206,48 @@ func getAllStock() ([]models.Stock, error) {
 }
 
 func updateStock(id int64, stock models.Stock) int64 {
+  db := createConnection()
 
+  defer db.Close()
+
+  sqlStatement := `UPDATE stocks SET stockname=$2, stockprice=$3, stockcompany=$4 WHERE stockid=$1`
+
+  res, err := db.Exec(sqlStatement, id, stock.StockName, stock.StockPrice, stock.StockCompany)
+
+  if err!= nil {
+    log.Fatalf("Unable to execute the query %v", err)
+  }
+  rowsAffected, err := res.RowsAffected()
+
+  if err!= nil {
+    log.Fatalf("Error while checking the affected rows %v", err)
+  }
+
+  fmt.Printf("Total rows/records affected %v", rowsAffected)
+
+  return rowsAffected
 }
 
 func deleteStock(id int64) int64 {
+  db := createConnection()
 
+  defer db.Close()
+
+  sqlStatement := `DELETE FROM stocks WHERE stockid=$1`
+
+  res, err := db.Exec(sqlStatement, id)
+
+  if err!= nil {
+    log.Fatalf("Unable to execute the query %v", err)
+  }
+
+  rowsAffected, err := res.RowsAffected()
+
+  if err!= nil {
+    log.Fatalf("Error while checking the affected rows %v", err)	
+  }
+
+  fmt.Printf("Total rows/records affected %v", rowsAffected)
+
+  return rowsAffected
 }
