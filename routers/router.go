@@ -8,10 +8,10 @@ import (
 func Router() *mux.Router {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/api/stock/{id}", middleware.GetStock).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/stock",middleware.GetAllStock).Methods("GET", "OPTIONS")
-	router.HandleFunc("/api/newstock",middleware.CreateStock).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/stock/{id}",middleware.updateStock).Methods("PUT","OPTIONS")
-	router.HandleFunc("/api/deletestock/{id}",middleware.DeleteStock).Methods("DELETE","OPTIONS")
+	router.HandleFunc("/api/stock/{id}", middlewares.GetStock).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/stock",middlewares.GetAllStock).Methods("GET", "OPTIONS")
+	router.HandleFunc("/api/newstock",middlewares.CreateStock).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/stock/{id}",middlewares.UpdateStock).Methods("PUT","OPTIONS")
+	router.HandleFunc("/api/deletestock/{id}",middlewares.DeleteStock).Methods("DELETE","OPTIONS")
 
 }
