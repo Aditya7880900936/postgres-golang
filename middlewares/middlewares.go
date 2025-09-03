@@ -130,31 +130,79 @@ func DeleteStock(w http.ResponseWriter, r *http.Request) {
 }
 
 func insertStock(stock models.Stock) int64 {
-   db := createConnection()
+	db := createConnection()
 
-   defer db.Close()
+	defer db.Close()
 
-   sqlStatement := `INSERT INTO stocks (stockname, stockprice, stockcompany) VALUES ($1, $2, $3) RETURNING stockid`
+	sqlStatement := `INSERT INTO stocks (stockname, stockprice, stockcompany) VALUES ($1, $2, $3) RETURNING stockid`
 
-   var id int64
+	var id int64
 
-   err := db.QueryRow(sqlStatement, stock.StockName, stock.StockPrice, stock.StockCompany).Scan(&id)
+	err := db.QueryRow(sqlStatement, stock.StockName, stock.StockPrice, stock.StockCompany).Scan(&id)
 
-   if err!= nil {
-	   log.Fatalf("Unable to execute the query %v", err)	
-   }	
+	if err != nil {
+		log.Fatalf("Unable to execute the query %v", err)
+	}
 
-   fmt.Printf("Inserted a single record %v", id)
+	fmt.Printf("Inserted a single record %v", id)
 
-   return id
+	return id
 }
 
 func getStock(id int64) (models.Stock, error) {
+	db := createConnection()
 
+	defer db.Close()
+
+	var stock models.Stock
+
+	sqlStatement := `SELECT * FROM stocks WHERE stockid=$1`
+
+	row := db.QueryRow(sqlStatement, id)
+
+	err := row.Scan(&stock.StockID, &stock.StockName, &stock.StockPrice, &stock.StockCompany)
+
+	switch err {
+	case sql.ErrNoRows:
+		fmt.Println("No rows were returned")
+		return stock, nil
+	case nil:
+		return stock, nil
+	default:
+		log.Fatalf("Unable to scan the row %v", err)
+	}
+	return stock, err
 }
 
 func getAllStock() ([]models.Stock, error) {
+	db := createConnection()
 
+	defer db.Close()
+
+	var stocks []models.Stock
+
+	sqlStatement := `SELECT * FROM stocks`
+
+	rows, err := db.Query(sqlStatement)
+
+	if err != nil {
+		log.Fatalf("Unable to execute the query %v", err)
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var stock models.Stock
+
+		err := rows.Scan(&stock.StockID, &stock.StockName, &stock.StockPrice, &stock.StockCompany)
+
+		if err != nil {
+			log.Fatalf("Unable to scan the row %v", err)
+		}
+
+		stocks = append(stocks, stock)
+	}
+	return stocks, err
 }
 
 func updateStock(id int64, stock models.Stock) int64 {
