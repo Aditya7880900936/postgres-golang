@@ -76,6 +76,55 @@ func GetStock(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(stock)
 }
 
-// func GetAllStock()
-// func UpdateStock()
-// func DeleteStock()
+func GetAllStock(w http.ResponseWriter, r *http.Request){
+	stocks, err := getAllStock()
+	if err!= nil {
+		log.Fatalf("Unable to get all stocks %v", err)
+	}
+
+	json.NewEncoder(w).Encode(stocks)
+}
+
+func UpdateStock(w http.ResponseWriter, r *http.Request){
+	params := mux.Vars(r)
+
+	id, err := strconv.Atoi(params["id"])
+	if err!= nil {
+		log.Fatalf("Unable to convert the string into int %v", err)
+	}
+	var stock models.Stock
+	err = json.NewDecoder(r.Body).Decode(&stock)
+	if err!= nil {
+		log.Fatalf("Unable to decode the request body %v", err)
+	}
+
+	updatedRows := updateStock(int64(id), stock)
+
+	msg := fmt.Sprintf("Stock updated successfully %v", updatedRows)
+
+	res := response{
+		StockID: int64(id),
+		Message: msg,
+	}
+	json.NewEncoder(w).Encode(res)
+}
+
+func DeleteStock(w http.ResponseWriter, r *http.Request){
+	params := mux.Vars(r)
+
+	id, err := strconv.Atoi(params["id"])
+	if err!= nil {
+		log.Fatalf("Unable to convert the string into int %v", err)
+	}
+
+	deletedRows := deleteStock(int64(id))
+
+	msg := fmt.Sprintf("Stock deleted successfully %v", deletedRows)
+
+	res := response{
+		StockID: int64(id),
+		Message: msg,
+	}	
+
+	json.NewEncoder(w).Encode(res)
+}
