@@ -12,6 +12,7 @@ import (
 	"github.com/Aditya7880900936/postgres-golang/models"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+     _ "github.com/lib/pq"
 )
 
 type response struct {
@@ -206,48 +207,48 @@ func getAllStock() ([]models.Stock, error) {
 }
 
 func updateStock(id int64, stock models.Stock) int64 {
-  db := createConnection()
+	db := createConnection()
 
-  defer db.Close()
+	defer db.Close()
 
-  sqlStatement := `UPDATE stocks SET stockname=$2, stockprice=$3, stockcompany=$4 WHERE stockid=$1`
+	sqlStatement := `UPDATE stocks SET stockname=$2, stockprice=$3, stockcompany=$4 WHERE stockid=$1`
 
-  res, err := db.Exec(sqlStatement, id, stock.StockName, stock.StockPrice, stock.StockCompany)
+	res, err := db.Exec(sqlStatement, id, stock.StockName, stock.StockPrice, stock.StockCompany)
 
-  if err!= nil {
-    log.Fatalf("Unable to execute the query %v", err)
-  }
-  rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		log.Fatalf("Unable to execute the query %v", err)
+	}
+	rowsAffected, err := res.RowsAffected()
 
-  if err!= nil {
-    log.Fatalf("Error while checking the affected rows %v", err)
-  }
+	if err != nil {
+		log.Fatalf("Error while checking the affected rows %v", err)
+	}
 
-  fmt.Printf("Total rows/records affected %v", rowsAffected)
+	fmt.Printf("Total rows/records affected %v", rowsAffected)
 
-  return rowsAffected
+	return rowsAffected
 }
 
 func deleteStock(id int64) int64 {
-  db := createConnection()
+	db := createConnection()
 
-  defer db.Close()
+	defer db.Close()
 
-  sqlStatement := `DELETE FROM stocks WHERE stockid=$1`
+	sqlStatement := `DELETE FROM stocks WHERE stockid=$1`
 
-  res, err := db.Exec(sqlStatement, id)
+	res, err := db.Exec(sqlStatement, id)
 
-  if err!= nil {
-    log.Fatalf("Unable to execute the query %v", err)
-  }
+	if err != nil {
+		log.Fatalf("Unable to execute the query %v", err)
+	}
 
-  rowsAffected, err := res.RowsAffected()
+	rowsAffected, err := res.RowsAffected()
 
-  if err!= nil {
-    log.Fatalf("Error while checking the affected rows %v", err)	
-  }
+	if err != nil {
+		log.Fatalf("Error while checking the affected rows %v", err)
+	}
 
-  fmt.Printf("Total rows/records affected %v", rowsAffected)
+	fmt.Printf("Total rows/records affected %v", rowsAffected)
 
-  return rowsAffected
+	return rowsAffected
 }
