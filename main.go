@@ -8,10 +8,12 @@ import (
     "os"
 
     _ "github.com/lib/pq"
-    "github.com/gorilla/mux"
     "github.com/joho/godotenv"
     "github.com/golang-migrate/migrate/v4"
     "github.com/golang-migrate/migrate/v4/database/postgres"
+    _ "github.com/golang-migrate/migrate/v4/source/file"
+
+    "github.com/Aditya7880900936/postgres-golang/routers" // ✅ Import router package
 )
 
 func runMigrations(db *sql.DB) {
@@ -35,7 +37,9 @@ func runMigrations(db *sql.DB) {
 }
 
 func main() {
-    godotenv.Load()
+    if err := godotenv.Load(); err != nil {
+		log.Println("⚠️  Warning: .env file not found, using system environment variables")
+	}
     dbURL := os.Getenv("POSTGRES_URL")
     db, err := sql.Open("postgres", dbURL)
     if err != nil {
@@ -46,7 +50,9 @@ func main() {
     // Run migrations automatically
     runMigrations(db)
 
-    r := mux.NewRouter()
+    // ✅ Use router.Router() instead of creating a new one
+    r := routers.Router()
+
     fmt.Println("Starting Server on the PORT 8080.....")
     log.Fatal(http.ListenAndServe(":8080", r))
 }
