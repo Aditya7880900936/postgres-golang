@@ -2,32 +2,32 @@
     FROM golang:1.24-alpine AS builder
     WORKDIR /app
     
-    # Install required packages
+    # Install git
     RUN apk add --no-cache git
     
-    # Copy go.mod and go.sum first for caching
+    # Copy go.mod and go.sum first (for caching)
     COPY go.mod go.sum ./
     RUN go mod download
     
-    # Copy the rest of the project files
+    # Copy source code
     COPY . .
     
-    # Build Go binary
+    # Build the Go binary
     RUN go build -o main .
     
     # ---------- Stage 2: Runtime ----------
-    FROM alpine:3.20
+    FROM alpine:3.18
     WORKDIR /app
     
-    # Install Postgres client for debugging (optional)
+    # Install Postgres client (optional, for debugging)
     RUN apk add --no-cache postgresql-client
     
-    # Copy built binary from builder
+    # Copy the built binary
     COPY --from=builder /app/main .
     
-    # Expose API port
+    # Expose the app port
     EXPOSE 8080
     
-    # Run binary
+    # Start the app
     CMD ["./main"]
     
