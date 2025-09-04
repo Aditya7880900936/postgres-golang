@@ -11,8 +11,7 @@ import (
 
 	"github.com/Aditya7880900936/postgres-golang/models"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-     _ "github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 type response struct {
@@ -20,39 +19,35 @@ type response struct {
 	Message string `json:"message,omitempty"`
 }
 
+// createConnection uses environment variables only
 func createConnection() *sql.DB {
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
+	dbURL := os.Getenv("POSTGRES_URL")
+	if dbURL == "" {
+		log.Fatal("POSTGRES_URL not set in environment")
 	}
 
-	db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
+	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		panic(err)
 	}
 
 	err = db.Ping()
-
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Successfully connected to postgres")
 	return db
-
 }
 
 func CreateStock(w http.ResponseWriter, r *http.Request) {
 	var stock models.Stock
-
 	err := json.NewDecoder(r.Body).Decode(&stock)
 	if err != nil {
-		log.Fatalf("Unable to decode the request body %v", err)
+		log.Fatalf("Unable to decode request body: %v", err)
 	}
 
 	insertID := insertStock(stock)
-
 	res := response{
 		StockID: insertID,
 		Message: "Stock Created Successfully",
@@ -63,15 +58,14 @@ func CreateStock(w http.ResponseWriter, r *http.Request) {
 
 func GetStock(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-
 	id, err := strconv.Atoi(params["id"])
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int %v", err)
+		log.Fatalf("Unable to convert string to int: %v", err)
 	}
 
 	stock, err := getStock(int64(id))
 	if err != nil {
-		log.Fatalf("Unable to get stock %v", err)
+		log.Fatalf("Unable to get stock: %v", err)
 	}
 
 	json.NewEncoder(w).Encode(stock)
@@ -80,7 +74,7 @@ func GetStock(w http.ResponseWriter, r *http.Request) {
 func GetAllStock(w http.ResponseWriter, r *http.Request) {
 	stocks, err := getAllStock()
 	if err != nil {
-		log.Fatalf("Unable to get all stocks %v", err)
+		log.Fatalf("Unable to get all stocks: %v", err)
 	}
 
 	json.NewEncoder(w).Encode(stocks)
